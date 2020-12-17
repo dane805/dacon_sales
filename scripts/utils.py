@@ -26,14 +26,18 @@ def submit_merger(prediction, f_name):
     submit = pd.read_csv("data09/submission.csv")
     submit = submit[['store_id']].merge(prediction, on='store_id', how='left')
     submit.amount = submit.amount.fillna(0)
-    submit.to_csv(f'data09/f_name.csv', index=False)
+    submit.to_csv(f'../data09/{f_name}.csv', index=False)
     
 def train_test_splitter(df):
+    '''
+    주어진 데이터 중 마지막 3개월을 y로 둔다
+    20%를 test로 분리
+    '''
     y_bool = df.transacted_date >= datetime.datetime(2018, 12, 1)
     y = df[y_bool].groupby('store_id').amount.sum()
     X = df[~y_bool]
     
-    train_index = y.sample(frac=0.8).index
+    train_index = y.sample(frac=0.8, random_state=85).index
 
     train_X = X[X.store_id.isin(train_index)]
     test_X = X[~X.store_id.isin(train_index)]
